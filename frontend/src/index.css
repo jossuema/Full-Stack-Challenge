@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.h-10vh {
+    height: 10vh;
+}
+
+.h-90vh {
+    height: 90vh;
+}
+
+.h-5vh {
+    height: 5vh;
+}
+
+.h-85vh {
+    height: 85vh;
+}
+
+@layer utilities {
+    /* Estilizando el scrollbar */
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  }
