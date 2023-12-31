@@ -1,10 +1,9 @@
 package com.notes.backend.models;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.*;import org.hibernate.annotations.ManyToAny;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -17,11 +16,14 @@ public class Note {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
+
     @Basic
     @Column(name = "content")
     private String content;
+
     @Column(name = "archived")
     private boolean archived;
+
     @ManyToMany
     @JoinTable(
             name = "note_category",

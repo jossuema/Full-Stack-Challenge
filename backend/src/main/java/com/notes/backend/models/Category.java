@@ -21,7 +21,7 @@ public class Category {
     private String name;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "categories")
+    @ManyToMany(mappedBy = "categories", cascade = CascadeType.ALL)
     private Set<Note> notes = new HashSet<>();
 
     @Override

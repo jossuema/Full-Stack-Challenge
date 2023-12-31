@@ -3,19 +3,19 @@
 @tailwind utilities;
 
 .h-10vh {
-    height: 10vh;
+  height: 10vh;
 }
 
 .h-90vh {
-    height: 90vh;
+  height: 90vh;
 }
 
 .h-5vh {
-    height: 5vh;
+  height: 5vh;
 }
 
 .h-85vh {
-    height: 85vh;
+  height: 85vh;
 }
 
 @layer utilities {

@@ -1,21 +1,23 @@
 import { FC, FormEvent, useState, useEffect } from 'react';
 import { Note } from '../types/Note';
 import Alert from './Alert';
+import { Category } from '../types/Category';
 
 type FormularioProps = {
-    onAdd: (item: string, categories:string[]) => void;
+    onAdd: (item: string, categories:Category[]) => void;
     noteEdit?: Note;
-    onEdit?: (id: string, content: string, categories:string[]) => void;
-    categories: string[];
-    onAddCategory?: (categories: string[]) => void;
+    onEdit: (note: Note) => void;
+    categories: Category[];
+    onAddCategory: (categories: string) => void;
+    deleteCategory: (id: string) => void;
 };
 
-const Formulario:FC<FormularioProps> = ({ onAdd, noteEdit, onEdit, categories, onAddCategory}) => {
+const Formulario:FC<FormularioProps> = ({ onAdd, noteEdit, onEdit, categories, onAddCategory, deleteCategory}) => {
     const [note, setNote] = useState('');
     const [alert, setAlert] = useState<string | null>(null);
     const [alertType, setAlertType] = useState<string>('');
-    const [newCategory, setNewCategory] = useState('');
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [newCategoryName, setNewCategoryName] = useState<string>('');
+    const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
 
     useEffect(() => {
         if (noteEdit) {
@@ -28,28 +30,29 @@ const Formulario:FC<FormularioProps> = ({ onAdd, noteEdit, onEdit, categories, o
 
     const handleAddCategory = (event: FormEvent) => {
         event.preventDefault();
-        if (!newCategory) {
+        if (!newCategoryName) {
             setAlertType('error');
             setAlert('This field is required');
             return;
         }
-        if (categories.includes(newCategory)) {
+        if (categories.find(category => category.name === newCategoryName)) {
             setAlertType('error');
             setAlert('This category already exists');
             return;
         }else{
-            onAddCategory?.([...categories, newCategory]);
-            setNewCategory('');
+            onAddCategory?.(newCategoryName);
+            setNewCategoryName('');
             setAlertType('');
             setAlert('Category added')
             return;
         }
     };
 
-    const handleCategoryChange = (category: string) => {
+    const handleCategoryChange = (category: Category) => {
         setSelectedCategories(prev => {
-            if (prev.includes(category)) {
-                return prev.filter(c => c !== category);
+            const isCategorySelected = prev.some(c => c.id === category.id);
+            if (isCategorySelected) {
+                return prev.filter(c => c.id !== category.id);
             } else {
                 return [...prev, category];
             }
@@ -64,7 +67,7 @@ const Formulario:FC<FormularioProps> = ({ onAdd, noteEdit, onEdit, categories, o
             return;
         }
         if(noteEdit){
-            onEdit?.(noteEdit.id, note, selectedCategories);
+            onEdit?.({...noteEdit, content: note, categories: selectedCategories});
             setAlert("Note edited");
             setAlertType('');
             setNote ('');
@@ -91,15 +94,22 @@ const Formulario:FC<FormularioProps> = ({ onAdd, noteEdit, onEdit, categories, o
                     onChange={(event) => setNote(event.target.value)}
                 />
                 <div className='h-40vh overflow-auto mt-2'>
-                    {categories.map((category, index) => (
-                        <label key={index} className='flex items-center space-x-2 cursor-pointer'>
-                            <input
-                                type="checkbox"
-                                checked={selectedCategories.includes(category)}
-                                onChange={() => handleCategoryChange(category)}
-                                className='h-5 w-5'
-                            />
-                            <span className="text-gray-700">{category}</span>
+                    {categories.map((category) => (
+                        <label key={category.id} className='flex items-center justify-between space-x-2'>
+                            <div className='flex items-center space-x-2'>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedCategories.some(c => c.id === category.id)}
+                                    onChange={() => handleCategoryChange(category)}
+                                    className='h-5 w-5 cursor-pointer'
+                                />
+                                <span className="text-gray-700">{category.name}</span>
+                            </div>
+                            <img 
+                                src='src/assets/error.svg'
+                                className='w-3 h-3 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-75'
+                                onClick={() => deleteCategory(category.id)}
+                            ></img>
                         </label>
                     ))}
                 </div>
@@ -116,8 +126,8 @@ const Formulario:FC<FormularioProps> = ({ onAdd, noteEdit, onEdit, categories, o
                         name="input"
                         className="border-2 border-gray-300 rounded p-2"
                         placeholder="Enter a category"
-                        value={newCategory}
-                        onChange={(event) => setNewCategory(event.target.value)}
+                        value={newCategoryName}
+                        onChange={(event) => setNewCategoryName(event.target.value)}
                     />
                 <button
                     type='submit'

@@ -1,71 +1,53 @@
 import { Note } from "../types/Note";
 import { clientServices } from "../service/client-service";
+import { Category } from "../types/Category";
 
-async function categoriesList(): Promise<string[]> {
+async function categoriesList(): Promise<Category[]> {
     const categories = await clientServices.getCategories();
     
     if (!Array.isArray(categories)) {
         console.log(categories);
         throw new Error("La respuesta no es un arreglo.");
     }
-    const categoryNames = categories.map(category => category.name);
-    return categoryNames;
+
+    return categories;
 }
 
 async function notesList(): Promise<Note[]> {
     const notes = await clientServices.getNotes();
+
     if (!Array.isArray(notes)) {
         console.log(notes);
         throw new Error("La respuesta no es un arreglo.");
     }
     
-    return notes.map(nota => {
-        return {
-            id: nota.id,
-            content: nota.content,
-            archived: nota.archived,
-            categories: nota.categories.map((categoria: {name:string}) => categoria.name)
-        };
+    return notes;
+}
+
+async function updateNote (note: Note): Promise<Response> {
+        return clientServices.updateNote(note.id, note.content, note.archived, note.categories);
+}
+
+async function deleteNote (id:string): Promise<Response> {
+    return clientServices.deleteNote (id);
+}
+
+async function createCategory (name:string): Promise<Response> {
+    return clientServices.createCategory(name);
+}
+
+async function createNote (note: Note): Promise<Response> {
+        return clientServices.createNote (note.content, note.archived, note.categories);
+}
+
+async function archiveNoteToggle(id:string): Promise<Response> {
+    return clientServices.getNoteById(id).then((note) => {
+        return clientServices.updateNote (id, note.content, !note.archived, note.categories);
     });
 }
 
-function updateNote (note: Note): void {
-    findIdCategoriesByName(note.categories).then(categories => {
-        return clientServices.updateNote(note.id, note.content, note.archived, categories);
-    });
-}
-
-function findIdCategoriesByName (categories: string[]): Promise<number[]> {
-    return clientServices.getCategories().then((categoriesList) => {
-        const categoriesId: number[] = [];
-        categories.forEach((categoryName) => {
-            const category = categoriesList.find((category:{name:string, id:number}) => category.name === categoryName);
-            if (category) {
-                categoriesId.push(category.id);
-            }
-        });
-        return categoriesId;
-    });
-}
-
-function deleteNote (id:string): void {
-    clientServices.deleteNote (id);
-}
-
-function createCategory (name:string): void {
-    clientServices.createCategory(name);
-}
-
-function createNote (note: Note): void {
-    findIdCategoriesByName(note.categories).then(categories => {
-        return clientServices.createNote (note.content, note.archived, categories);
-    });
-}
-
-function archiveNoteToggle(id:string): void {
-    clientServices.getNoteById(id).then((note) => {
-        clientServices.updateNote (id, note.content, !note.archived, note.categories);
-    });
+async function deleteCategory(id:string): Promise<Response> {
+    return clientServices.deleteCategory(id);
 }
 
 export const clientController = {
@@ -75,6 +57,7 @@ export const clientController = {
     updateNote,
     createCategory,
     createNote,
-    archiveNoteToggle
+    archiveNoteToggle,
+    deleteCategory
 };
 

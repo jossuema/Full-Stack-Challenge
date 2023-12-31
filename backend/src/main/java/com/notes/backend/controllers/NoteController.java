@@ -68,6 +68,12 @@ public class NoteController {
         return ResponseEntity.ok(categoryService.create(categoryDto));
     }
 
+    @DeleteMapping("/categories/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
+        categoryService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
 
 
 }

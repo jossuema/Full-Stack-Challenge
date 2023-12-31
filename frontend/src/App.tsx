@@ -5,23 +5,33 @@ import List from './components/List'
 import { useState, useEffect } from 'react'
 import { Note } from './types/Note'
 import { clientController } from './controller/client-controller';
+import { Category } from './types/Category'
 
 function App() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [noteEdit, setNoteEdit] = useState<Note | undefined>(undefined);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
+    loadNotes();
+    loadCategories();
+  }, []);
+
+  const loadNotes = () => {
     clientController.notesList().then((notes) => {
       setNotes(notes);
     });
+  }
+
+  const loadCategories = () => {
     clientController.categoriesList().then((categories) => {
       setCategories(categories);
     });
-  }, []);
+  }
 
-  const addNote = (content: string, categories:string[]) => {
-    clientController.createNote({ id: "", content, archived: false, categories});
+  const addNote = (content: string, categories:Category[]) => {
+    clientController.createNote({ id: "", content, archived: false, categories}).then(() => {
+      loadNotes()});
     setNoteEdit(undefined);
   };
 
@@ -30,25 +40,38 @@ function App() {
     setNoteEdit(note);
   };
 
-  const saveEditNote = (id: string, content: string, categories: string[]) => {
-    clientController.updateNote({id, content, archived: false, categories});
+  const saveEditNote = (note: Note) => {
+    clientController.updateNote(note).then(() => {
+      loadNotes()});
     setNoteEdit(undefined);
   };
 
   const deleteNote = (id: string) => {
-    clientController.deleteNote(id);
+    clientController.deleteNote(id).then(() => {
+      loadNotes()});
   };
 
   const archiveNote = (id: string) => {
-    setNotes(notes.map(item => item.id === id ? { ...item, archived: !item.archived } : item));
-    clientController.archiveNoteToggle(id);
+    clientController.archiveNoteToggle(id).then(() => {
+      loadNotes()});
+  }
+
+  const addCategory = (name: string) => {
+    clientController.createCategory(name).then(() => {
+      loadCategories()});
+  }
+  
+  
+  const deleteCategory = (id: string) => {
+    clientController.deleteCategory(id).then(() => {
+      loadCategories()});
   }
 
   return (
     <div className="flex flex-col h-screen">
       <Header/>
       <div className="flex flex-1">
-        <Form onAdd={addNote} noteEdit={noteEdit} onEdit={saveEditNote} categories={categories} onAddCategory={setCategories}/>
+        <Form onAdd={addNote} noteEdit={noteEdit} onEdit={saveEditNote} categories={categories} onAddCategory={addCategory} deleteCategory={deleteCategory}/>
         <List notes={notes} onEdit={editNote} onDelete={deleteNote} onArchive={archiveNote} categories={categories}/>
       </div>
     </div>

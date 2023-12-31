@@ -1,7 +1,8 @@
 import { useState, ChangeEvent, FC } from "react"
+import { Category } from "../types/Category";
 
 type CategoriesSelectorProps = {
-    categories: string[];
+    categories: Category[];
     setSelectedCategory: (category: string) => void;
 };
 
@@ -22,7 +23,7 @@ const CategoriesSelector: FC<CategoriesSelectorProps> = ({categories, setSelecte
             >
                 <option value="">Select a category</option>
                 {categories.map((category, index) => (
-                    <option key={index} value={category}>{category}</option>
+                    <option key={index} value={category.name}>{category.name}</option>
                 ))}
             </select>
         </div>

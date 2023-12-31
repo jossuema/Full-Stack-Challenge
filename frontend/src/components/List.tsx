@@ -1,13 +1,14 @@
 import { FC, useState, useEffect } from 'react';
 import { Note } from '../types/Note';
 import CategoriesSelector from './CategoriesSelector';
+import { Category } from '../types/Category';
 
 type ListProps = {
     notes: Note[];
     onDelete: (id: string) => void;
     onEdit: (id: string) => void;
     onArchive: (id: string) => void;
-    categories: string[];
+    categories: Category[];
 };
 
 const ListCards: FC<ListProps> = ({notes, onEdit, onDelete, onArchive, categories}) => {
@@ -18,8 +19,8 @@ const ListCards: FC<ListProps> = ({notes, onEdit, onDelete, onArchive, categorie
 
     useEffect(() => {
         let notesFiltered = notes;
-        if (selectedCategory !== '') {
-            notesFiltered = notesFiltered.filter(note => note.categories.includes(selectedCategory));
+        if (selectedCategory) {
+            notesFiltered = notesFiltered.filter(note => note.categories.find(category => category.name === selectedCategory));
         }
         setFilteredNotes(notesFiltered.filter(note => note.archived === showArchived));
     }, [notes, showArchived, selectedCategory]);
@@ -48,7 +49,7 @@ const ListCards: FC<ListProps> = ({notes, onEdit, onDelete, onArchive, categorie
                             <span className='text-gray-800 mb-2'>{note.content}</span>
                             <div className='flex flex-wrap gap-2 my-2'>
                                 {note.categories.map((category, index) => (
-                                    <span key={index} className='bg-gray-200 text-gray-700 p-1 rounded'>{category}</span>
+                                    <span key={index} className='bg-gray-200 text-gray-700 p-1 rounded'>{category.name}</span>
                                 ))}
                             </div>
                             <div className='flex justify-end mt-4'>
